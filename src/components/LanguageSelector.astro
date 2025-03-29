@@ -1,0 +1,74 @@
+---
+import { getLangFromUrl } from '../i18n/ui';
+
+const lang = getLangFromUrl(Astro.url);
+
+// Get the current path without the language prefix
+const currentPath = Astro.url.pathname;
+let pathWithoutLang = currentPath;
+
+// If we're on an English page (starts with /en/), remove the /en prefix
+if (currentPath.startsWith('/en/')) {
+  pathWithoutLang = currentPath.substring(3); // Remove '/en' from the beginning
+} else if (currentPath === '/en') {
+  pathWithoutLang = '/'; // Special case for the English home page
+}
+
+// If we're on an Italian page (doesn't start with /en/), add the /en prefix for English
+const targetPath = lang === 'it' 
+  ? `/en${pathWithoutLang === '/' ? '' : pathWithoutLang}` 
+  : pathWithoutLang;
+
+// Handle special case for the Italian market entry pages
+let finalPath = targetPath;
+if (lang === 'it' && currentPath === '/entrare-nel-mercato-italiano') {
+  finalPath = '/en/entering-italian-market';
+} else if (lang === 'en' && currentPath === '/en/entering-italian-market') {
+  finalPath = '/entrare-nel-mercato-italiano';
+}
+---
+
+<div class="language-selector">
+  {lang === 'it' ? (
+    <a href={finalPath} class="language-link">
+      <span class="language-text">English</span>
+    </a>
+  ) : (
+    <a href={finalPath} class="language-link">
+      <span class="language-text">Italiano</span>
+    </a>
+  )}
+</div>
+
+<style>
+  .language-selector {
+    margin-left: 1rem;
+  }
+  
+  .language-link {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background-color: var(--accent-color);
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+  
+  .language-link:hover {
+    background-color: var(--accent-hover);
+  }
+  
+  .language-text {
+    margin-left: 0.5rem;
+  }
+  
+  @media (max-width: 768px) {
+    .language-selector {
+      margin-left: 0;
+      margin-right: 1rem;
+    }
+  }
+</style>
